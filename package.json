@@ -1,5 +1,5 @@
 {
-  "name": "react-codesandbox",
+  "name": "audio-speeder",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -28,12 +28,7 @@
       "pre-commit": "lint-staged && npm run build"
     }
   },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ],
+  "browserslist": [">0.2%", "not dead", "not ie <= 11", "not op_mini all"],
   "devDependencies": {
     "prettier": "^1.15.2",
     "husky": "^1.1.4",
