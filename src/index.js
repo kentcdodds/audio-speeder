@@ -122,3 +122,9 @@ function App() {
 }
 
 ReactDOM.render(<App />, document.getElementById('root'))
+
+/*
+eslint
+no-unused-vars: ["warn", {"varsIgnorePattern": "(jsx)"}]
+react/react-in-jsx-scope: "off"
+*/
