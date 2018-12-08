@@ -38,6 +38,8 @@ function App() {
           display: 'flex',
           flexDirection: 'column',
           justifyContents: 'center',
+          maxWidth: 500,
+          margin: 'auto',
         }}
       >
         <h1 css={{textAlign: 'center', fontSize: '3rem'}}>
@@ -87,7 +89,7 @@ function App() {
                 min={0}
                 max={5}
                 step="0.1"
-                defaultValue={playbackRate}
+                value={playbackRate}
                 onChange={e => setPlaybackRate(e.target.value)}
                 css={{
                   lineHeight: 1.5,
@@ -103,7 +105,7 @@ function App() {
                 min={0}
                 max={5}
                 step="0.1"
-                defaultValue={playbackRate}
+                value={playbackRate}
                 onChange={e => setPlaybackRate(e.target.value)}
                 css={{flex: '1'}}
               />
