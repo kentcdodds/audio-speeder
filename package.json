@@ -1,0 +1,42 @@
+{
+  "name": "react-codesandbox",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@emotion/core": "^10.0.0",
+    "@emotion/styled": "^10.0.0",
+    "emotion": "^10.0.0",
+    "jest-dom": "^2.0.3",
+    "react": "^16.7.0-alpha.2",
+    "react-cache": "2.0.0-alpha.1",
+    "react-dom": "^16.7.0-alpha.2",
+    "react-emotion": "^9.2.12",
+    "react-scripts": "^2.1.1",
+    "react-testing-library": "^5.2.3"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "format": "prettier --write \"**/*.+(js|json|css|md|mdx|html)\""
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged && npm run build"
+    }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devDependencies": {
+    "prettier": "^1.15.2",
+    "husky": "^1.1.4",
+    "lint-staged": "^8.0.4"
+  }
+}
