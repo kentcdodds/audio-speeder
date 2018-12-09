@@ -1,11 +1,20 @@
 /* @jsx jsx */
 import {jsx, css, Global} from '@emotion/core'
 
+// yes, I know this is an unmaintainable mess in need of some good abstractions
+// but it's a side project so don't judge me.
+// also, I know it barely works and there are bugs. Feel free to open PRs:
+// https://codesandbox.io/s/github/kentcdodds/audio-speeder
+
 import React, {useRef, useState, useEffect} from 'react'
 import ReactDOM from 'react-dom'
 
 let currentId = 1
 const generateId = () => currentId++
+
+function getEpisodeTitle(src) {
+  return src.slice(src.lastIndexOf('/') + 1)
+}
 
 function useMountedState() {
   const mountedRef = useRef(false)
@@ -28,7 +37,7 @@ function AudioSrc({
 }) {
   const audioRef = useRef()
   const [ended, setEndedState] = useState(false)
-  function handleEnded(e) {
+  function handleEnded() {
     setEndedState(true)
   }
   function handlePlaying(e) {
@@ -56,8 +65,10 @@ function AudioSrc({
 
   useEffect(
     () => {
-      if (playing && audioRef.current.paused) {
+      if (playing) {
         audioRef.current.play()
+      } else if (!playing) {
+        audioRef.current.pause()
       }
     },
     [playing],
@@ -84,7 +95,7 @@ function AudioSrc({
           </span>
         ) : null}
         <label css={{lineHeight: 1.4}} htmlFor={`fileUrl-${index}`}>
-          File {index + 1} URL
+          {getEpisodeTitle(src)}
         </label>
         <button
           onClick={onRemove}
@@ -151,28 +162,52 @@ function AudioSrc({
   )
 }
 
+function useLocalStorageState(key, initialValue) {
+  const [state, setState] = useState(() =>
+    JSON.parse(
+      window.localStorage.getItem(key) || JSON.stringify(initialValue),
+    ),
+  )
+  useEffect(
+    () => {
+      window.localStorage.setItem(key, JSON.stringify(state))
+    },
+    [state],
+  )
+  return [state, setState]
+}
+
 function App() {
-  const [playbackRate, setPlaybackRate] = useState(1)
-  const [playingEpisode, setPlayingEpisode] = useState(-1)
-  const [audioSrces, setAudioSrces] = useState([
-    {
-      id: 0,
-      src:
-        'https://media.blubrry.com/writingexcuses/writingexcuses.com/wp-content/uploads/Writing_Excuses_10_2_I_Have_an_Idea.mp3',
+  const [playbackRate, setPlaybackRate] = useLocalStorageState(
+    'audio-speeder:playback-rate',
+    1,
+  )
+  const [playingEpisode, setPlayingEpisode] = useLocalStorageState(
+    'audio-speeder:playing-episode',
+    -1,
+  )
+  const [episodes, setEpisodes] = useLocalStorageState(
+    'audio-speeder:episodes',
+    [],
+  )
+  const [playing, setPlaying] = useState(false)
+
+  useEffect(
+    () => {
+      const episode = episodes[playingEpisode]
+      if (episode && episode.src) {
+        document.title = getEpisodeTitle(episode.src)
+      }
     },
-    {
-      id: 10,
-      src:
-        'https://media.blubrry.com/writingexcuses/writingexcuses.com/wp-content/uploads/Writing_Excuses_10_2_I_Have_an_Idea.mp3',
-    },
-  ])
+    [playingEpisode],
+  )
 
   function addSrc() {
-    setAudioSrces(srces => [...srces, {src: '', id: generateId()}])
+    setEpisodes(srces => [...srces, {src: '', id: generateId()}])
   }
 
   function setDataForAudio(index, data) {
-    setAudioSrces(srces => [
+    setEpisodes(srces => [
       ...srces.slice(0, index),
       {...srces[index], ...data},
       ...srces.slice(index + 1),
@@ -182,11 +217,11 @@ function App() {
   function advanceEpisode(endedIndex) {
     const next = endedIndex + 1
     setDataForAudio(endedIndex, {played: true})
-    setPlayingEpisode(next > audioSrces.length ? -1 : next)
+    setPlayingEpisode(next > episodes.length ? -1 : next)
   }
 
   function removeEpisode(index) {
-    setAudioSrces(srces => srces.filter((s, i) => i !== index))
+    setEpisodes(srces => srces.filter((s, i) => i !== index))
   }
 
   function setAudioSrc(index, newSrc) {
@@ -250,16 +285,19 @@ function App() {
             css={{flex: '1'}}
           />
         </div>
-        {audioSrces.map((src, i) => (
+        {episodes.map((src, i) => (
           <AudioSrc
             playbackRate={playbackRate}
             onChangeAudioSrc={newSrc => setAudioSrc(i, newSrc)}
             key={src.id}
             {...src}
             index={i}
-            playing={playingEpisode === i}
+            playing={playing && playingEpisode === i}
             onRemove={() => removeEpisode(i)}
-            onPlaying={() => setPlayingEpisode(i)}
+            onPlaying={() => {
+              setPlaying(true)
+              setPlayingEpisode(i)
+            }}
             onEndedChange={ended => {
               if (ended) {
                 advanceEpisode(i)
